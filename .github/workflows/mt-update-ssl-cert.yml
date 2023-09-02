@@ -1,27 +1,27 @@
 name: MT update SSL cert
 on:
-    workflow_dispatch: # manual
-    push:  # FIXME remove
-        branches: mmathieum # FIXME remove
-    schedule:
-      - cron: '0 18 2 * *' # Monthly on the 2nd @ 6pm UTC # WEEKLY https://crontab.guru/#0_18_2_*_*
+  workflow_dispatch: # manual
+  push:  # FIXME remove
+    branches: mmathieum # FIXME remove
+  schedule:
+    - cron: '0 18 2 * *' # Monthly on the 2nd @ 6pm UTC # WEEKLY https://crontab.guru/#0_18_2_*_*
 # gh workflow run mt-update-ssl-cert.yml --ref mmathieum
 # gh run list --workflow=mt-update-ssl-cert.yml
 concurrency:
-    group: ${{ github.workflow }}-${{ github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 env:
-    # git commit & push
-    MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
-    MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
-    MT_GIT_COMMIT_ON: ${{ secrets.MT_GIT_COMMIT_ON }}
-    MT_GIT_COMMIT_OFF: ${{ secrets.MT_GIT_COMMIT_OFF }}
+  # git commit & push
+  MT_ORG_GIT_COMMIT_ON: ${{ secrets.MT_ORG_GIT_COMMIT_ON }}
+  MT_ORG_GIT_COMMIT_OFF: ${{ secrets.MT_ORG_GIT_COMMIT_OFF }}
+  MT_GIT_COMMIT_ON: ${{ secrets.MT_GIT_COMMIT_ON }}
+  MT_GIT_COMMIT_OFF: ${{ secrets.MT_GIT_COMMIT_OFF }}
 jobs:
   MT-UPDATE-SSL-CERT-JOB:
     name: "MT Update SSL cert"
     runs-on: ubuntu-latest
     steps:
-      - name: MT check out main repository code (no submodules)
+      - name: MT check out main repository code (with submodule)
         uses: actions/checkout@v3
         with:
           ref: mmathieum
@@ -46,3 +46,5 @@ jobs:
           git -C app-android add src/main/res/raw/info_stm_api_pem
           git -C app-android commit -m "CI: Update info.stm.info SSL cert"
           git -C app-android push
+        env:
+          GITHUB_TOKEN: ${{ secrets.MT_PAT }}
